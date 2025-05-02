@@ -1,0 +1,52 @@
+name: Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**"
+  workflow_dispatch:
+
+jobs:
+  deploy_staging:
+    name: Deploy to Staging
+    environment: "Staging"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          git checkout -b main origin/main
+          git checkout ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Get Head Commit Message
+        id: get_head_commit_message
+        run: echo "STAGING_HEAD_COMMIT_MESSAGE=$(git log -1 --pretty=%B)"
+
+  deploy_prod:
+    name: Deploy to Production
+    environment: "Production"
+    needs: deploy_staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          git checkout -b main origin/main
+          git checkout ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Get Head Commit Message
+        id: get_head_commit_message
+        run: echo "PROD_HEAD_COMMIT_MESSAGE=$(git log -1 --pretty=%B)"
+
+
