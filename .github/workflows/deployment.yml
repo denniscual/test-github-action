@@ -1,44 +1,39 @@
 name: Deployment
+# .github/workflows/deploy.yml
+name: Deploy Pipeline
 
 on:
   push:
-    branches: [main]
-    paths:
-      - "**"
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   deploy_staging:
-    name: Deploy to Staging
-    environment: "Staging"
     runs-on: ubuntu-latest
+    environment: staging
+    outputs:
+      commit_sha: ${{ steps.get_sha.outputs.commit_sha }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Get Head Commit Message
-        id: get_head_commit_message
-        run: echo "STAGING_HEAD_COMMIT_MESSAGE=$(git log -1 --pretty=%B)"
+      - uses: actions/checkout@v4
+      - name: Get commit SHA
+        id: get_sha
+        run: echo "commit_sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+      - name: Deploy to Staging
+        run: echo "Deploying commit ${{ steps.get_sha.outputs.commit_sha }} to staging"
+      # Add your actual staging deployment steps here
 
   deploy_prod:
-    name: Deploy to Production
-    environment: "Production"
-    needs: deploy_staging
+    needs: staging
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      # Optionally require manual approval in GitHub Environments settings
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
+          ref: ${{ needs.staging.outputs.commit_sha }}
+      - name: Deploy to Production
+        run: echo "Deploying commit ${{ needs.staging.outputs.commit_sha }} to production"
+      # Add your actual production deployment steps here
 
-      - name: Get Head Commit Message
-        id: get_head_commit_message
-        run: echo "PROD_HEAD_COMMIT_MESSAGE=$(git log -1 --pretty=%B)"
