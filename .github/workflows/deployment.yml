@@ -31,7 +31,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.staging.outputs.commit_sha }}
+
+      - name: Get commit message
+        id: get_message
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=format:%B ${{ needs.deploy_staging.outputs.commit_sha }})
+          echo "commit_message<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Deploy to Production
-        run: echo "Deploying commit ${{ needs.deploy_staging.outputs.commit_sha }} to production"
+        run: |
+          echo "Deploying commit ${{ needs.deploy_staging.outputs.commit_sha }} to production"
+          echo "Commit message: ${{ steps.get_message.outputs.commit_message }}"
       # Add your actual production deployment steps here
 
