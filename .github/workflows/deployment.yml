@@ -32,6 +32,6 @@ jobs:
         with:
           ref: ${{ needs.staging.outputs.commit_sha }}
       - name: Deploy to Production
-        run: echo "Deploying commit ${{ needs.staging.outputs.commit_sha }} to production"
+        run: echo "Deploying commit ${{ needs.deploy_staging.outputs.commit_sha }} to production"
       # Add your actual production deployment steps here
 
