@@ -1,6 +1,4 @@
 name: Deployment
-# .github/workflows/deploy.yml
-name: Deploy Pipeline
 
 on:
   push:
