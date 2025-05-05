@@ -13,12 +13,22 @@ jobs:
       commit_sha: ${{ steps.get_sha.outputs.commit_sha }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Get commit SHA
         id: get_sha
         run: echo "commit_sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
       - name: Deploy to Staging
         run: echo "Deploying commit ${{ steps.get_sha.outputs.commit_sha }} to staging"
-      # Add your actual staging deployment steps here
+
+      - uses: actions/setup-node@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Build App
+        run: pnpm build
 
   deploy_prod:
     needs: deploy_staging
@@ -44,5 +54,13 @@ jobs:
         run: |
           echo "Deploying commit ${{ needs.deploy_staging.outputs.commit_sha }} to production"
           echo "Commit message: ${{ steps.get_message.outputs.commit_message }}"
-      # Add your actual production deployment steps here
+
+      - uses: actions/setup-node@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Build App
+        run: pnpm build
 
