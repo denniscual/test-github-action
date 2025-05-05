@@ -71,5 +71,9 @@ jobs:
         run: pnpm install
 
       - name: Build App
+        env:
+          REACT_APP__COMMIT_MESSAGE: ${{ steps.get_message.outputs.commit_message }}
+          REACT_APP__COMMIT_HASH: ${{ steps.get_sha.outputs.commit_sha }}
         run: pnpm build
+
 
