@@ -37,10 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get commit message
-        id: get_message
-        run: echo "commit_message=${{ needs.deploy_staging.outputs.commit_message }}" >> $GITHUB_OUTPUT
-
       - uses: actions/setup-node@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
