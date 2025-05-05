@@ -36,70 +36,11 @@ export class VersionRspackPlugin {
         buildDateStaleThreshold,
       };
 
-      const outputPath = path.resolve(
-        __dirname,
-        compilation.options.output.path!,
-        this.versionFileName,
-      );
+      console.log("Logging version...");
 
-      console.log("Generating version.json file...");
+      console.log({ versionInfo });
 
-      fs.writeFile(outputPath, JSON.stringify(versionInfo, null, 2), (err) => {
-        if (err) {
-          console.log("Error", err);
-          throw new Error(
-            "VersionRspackPlugin: Encounter an error while writing version.json file.",
-          );
-        }
-
-        console.log(
-          "Version info is created:",
-          JSON.stringify(versionInfo, null, 2),
-        );
-
-        callback();
-      });
+      callback();
     });
-
-    // Embed build date into html
-    compiler.hooks.emit.tapAsync(
-      PLUGIN_NAME,
-      (compilation: any, callback: () => void) => {
-        console.log("Embedding version data into html...");
-
-        const htmlFile = Object.keys(compilation.assets).find((file) =>
-          file.endsWith("index.html"),
-        );
-
-        if (!htmlFile) {
-          const error = new Error(
-            `${PLUGIN_NAME}: No HTML file found in compilation assets.`,
-          );
-          compilation.errors.push(error);
-          return callback();
-        }
-
-        const htmlContent = compilation.assets[htmlFile].source();
-
-        const updatedHtmlContent = htmlContent.replace(
-          "</body>",
-          `<div hidden id="${this.buildDateElementId}">${buildDate}</div>${
-            buildNumber
-              ? `<div hidden id="${this.buildNumberElementId}">${buildNumber}</div>`
-              : ""
-          }</body>`,
-        );
-
-        // Update the asset with the modified content
-        compilation.assets[htmlFile] = {
-          source: () => updatedHtmlContent,
-          size: () => updatedHtmlContent.length,
-        };
-
-        console.log("version data got embedded successfully.");
-
-        callback();
-      },
-    );
   }
 }
