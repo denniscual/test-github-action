@@ -8,13 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     outputs:
-      commit_sha: ${{ steps.get_sha.outputs.commit_sha }}
       commit_message: ${{ steps.get_message.outputs.commit_message }}
     steps:
       - uses: actions/checkout@v4
-      - name: Get commit SHA
-        id: get_sha
-        run: echo "commit_sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
       - name: Get commit message
         id: get_message
         run: |
@@ -22,8 +18,6 @@ jobs:
           echo "commit_message<<EOF" >> $GITHUB_OUTPUT
           echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-      - name: Deploy to Staging
-        run: echo "Deploying commit ${{ steps.get_sha.outputs.commit_sha }} to staging"
       - uses: actions/setup-node@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -42,15 +36,11 @@ jobs:
       name: production
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.deploy_staging.outputs.commit_sha }}
+
       - name: Get commit message
         id: get_message
         run: echo "commit_message=${{ needs.deploy_staging.outputs.commit_message }}" >> $GITHUB_OUTPUT
-      - name: Deploy to Production
-        run: |
-          echo "Deploying commit ${{ needs.deploy_staging.outputs.commit_sha }} to production"
-          echo "Commit message: ${{ steps.get_message.outputs.commit_message }}"
+
       - uses: actions/setup-node@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -61,5 +51,4 @@ jobs:
       - name: Build App
         env:
           REACT_APP__COMMIT_MESSAGE: ${{ needs.deploy_staging.outputs.commit_message }}
-          REACT_APP__COMMIT_HASH: ${{ needs.deploy_staging.outputs.commit_sha }}
         run: pnpm build
