@@ -46,6 +46,7 @@ export class VersionRspackPlugin {
 
       fs.writeFile(outputPath, JSON.stringify(versionInfo, null, 2), (err) => {
         if (err) {
+          console.log("Error", err);
           throw new Error(
             "VersionRspackPlugin: Encounter an error while writing version.json file.",
           );
