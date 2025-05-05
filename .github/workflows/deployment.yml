@@ -1,79 +1,65 @@
 name: Deployment
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy_staging:
     runs-on: ubuntu-latest
     environment: staging
     outputs:
       commit_sha: ${{ steps.get_sha.outputs.commit_sha }}
+      commit_message: ${{ steps.get_message.outputs.commit_message }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Get commit SHA
         id: get_sha
         run: echo "commit_sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
-
+      - name: Get commit message
+        id: get_message
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=format:%B)
+          echo "commit_message<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Deploy to Staging
         run: echo "Deploying commit ${{ steps.get_sha.outputs.commit_sha }} to staging"
-
       - uses: actions/setup-node@v4
-
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           version: 10
           run_install: false
-
       - name: Install dependencies
         run: pnpm install
-
       - name: Build App
         run: pnpm build
-
   deploy_prod:
     needs: deploy_staging
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
     runs-on: ubuntu-latest
     environment:
       name: production
-      # Optionally require manual approval in GitHub Environments settings
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.staging.outputs.commit_sha }}
-
+          ref: ${{ needs.deploy_staging.outputs.commit_sha }}
       - name: Get commit message
         id: get_message
-        run: |
-          COMMIT_MSG=$(git log -1 --pretty=format:%B ${{ needs.deploy_staging.outputs.commit_sha }})
-          echo "commit_message<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
+        run: echo "commit_message=${{ needs.deploy_staging.outputs.commit_message }}" >> $GITHUB_OUTPUT
       - name: Deploy to Production
         run: |
           echo "Deploying commit ${{ needs.deploy_staging.outputs.commit_sha }} to production"
           echo "Commit message: ${{ steps.get_message.outputs.commit_message }}"
-
       - uses: actions/setup-node@v4
-
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           version: 10
-
       - name: Install dependencies
         run: pnpm install
-
       - name: Build App
         env:
-          REACT_APP__COMMIT_MESSAGE: ${{ steps.get_message.outputs.commit_message }}
-          REACT_APP__COMMIT_HASH: ${{ steps.get_sha.outputs.commit_sha }}
+          REACT_APP__COMMIT_MESSAGE: ${{ needs.deploy_staging.outputs.commit_message }}
+          REACT_APP__COMMIT_HASH: ${{ needs.deploy_staging.outputs.commit_sha }}
         run: pnpm build
-
-
