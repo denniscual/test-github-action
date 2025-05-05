@@ -5,42 +5,46 @@ import type { Compiler } from "@rspack/core";
 const PLUGIN_NAME = "VersionRspackPlugin";
 
 export class VersionRspackPlugin {
-  private versionFileName: string;
-  private buildDateElementId: string;
-  private buildNumberElementId: string;
+	private versionFileName: string;
+	private buildDateElementId: string;
+	private buildNumberElementId: string;
 
-  constructor() {
-    this.versionFileName = "version.json";
-    this.buildDateElementId = "cp_build_date";
-    this.buildNumberElementId = "cp_build_number";
-  }
+	constructor() {
+		this.versionFileName = "version.json";
+		this.buildDateElementId = "cp_build_date";
+		this.buildNumberElementId = "cp_build_number";
+	}
 
-  apply(compiler: Compiler) {
-    const buildDate = new Date().toISOString();
-    const buildNumber = process.env.REACT_APP__BUILD_NUMBER;
+	apply(compiler: Compiler) {
+		const buildDate = new Date().toISOString();
+		const buildNumber = process.env.REACT_APP__BUILD_NUMBER;
+		const commitHash = process.REACT_APP_COMMIT_HASH;
+		const commitMessage = process.env.REACT_APP_COMMIT_MESSAGE;
 
-    // Write version.json file
-    compiler.hooks.emit.tapAsync(PLUGIN_NAME, (compilation, callback) => {
-      const buildDateStaleThreshold = process.env
-        .REACT_APP_BUILD_DATE_STALE_THRESHOLD
-        ? parseInt(process.env.REACT_APP_BUILD_DATE_STALE_THRESHOLD, 10)
-        : 1000 * 60 * 60 * 24 * 14; // Default to 2 weeks.
+		// Write version.json file
+		compiler.hooks.emit.tapAsync(PLUGIN_NAME, (compilation, callback) => {
+			const buildDateStaleThreshold = process.env
+				.REACT_APP_BUILD_DATE_STALE_THRESHOLD
+				? parseInt(process.env.REACT_APP_BUILD_DATE_STALE_THRESHOLD, 10)
+				: 1000 * 60 * 60 * 24 * 14; // Default to 2 weeks.
 
-      const versionInfo = {
-        buildDate,
-        buildNumber,
-        /**
-         * The minimum time difference (in milliseconds) between the current time and
-         * the last update check that must have passed to trigger a new update check.
-         */
-        buildDateStaleThreshold,
-      };
+			const versionInfo = {
+				buildDate,
+				buildNumber,
+				/**
+				 * The minimum time difference (in milliseconds) between the current time and
+				 * the last update check that must have passed to trigger a new update check.
+				 */
+				buildDateStaleThreshold,
+				commitHash,
+				commitMessage,
+			};
 
-      console.log("Logging version...");
+			console.log("Logging version...");
 
-      console.log({ versionInfo });
+			console.log({ versionInfo });
 
-      callback();
-    });
-  }
+			callback();
+		});
+	}
 }
