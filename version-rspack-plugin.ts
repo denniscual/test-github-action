@@ -18,8 +18,8 @@ export class VersionRspackPlugin {
 	apply(compiler: Compiler) {
 		const buildDate = new Date().toISOString();
 		const buildNumber = process.env.REACT_APP__BUILD_NUMBER;
-		const commitHash = process.REACT_APP_COMMIT_HASH;
-		const commitMessage = process.env.REACT_APP_COMMIT_MESSAGE;
+		const commitHash = process.env.REACT_APP__COMMIT_HASH;
+		const commitMessage = process.env.REACT_APP__COMMIT_MESSAGE;
 
 		// Write version.json file
 		compiler.hooks.emit.tapAsync(PLUGIN_NAME, (compilation, callback) => {
