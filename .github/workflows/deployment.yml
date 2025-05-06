@@ -30,12 +30,17 @@ jobs:
         run: pnpm build
 
       - uses: denniscual/pull-request-info@v1.0.0
+        id: pr_info
         name: Get PR Info
         with:
           owner: denniscual
           commit_sha: 1f98673e57a4f3785ac7121af641e96357dd183d
           repo: test-github-action
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log PR Info
+        run: |
+          echo "Pull Requests: ${{ steps.pr_info.outputs.pull_requests }}"
 
   deploy_prod:
     needs: deploy_staging
