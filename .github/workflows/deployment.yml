@@ -29,7 +29,7 @@ jobs:
       - name: Build App
         run: pnpm build
 
-      - uses: denniscual/pull-request-info@v1.0.0
+      - uses: denniscual/pull-request-info@v1.1.0
         id: pr_info
         name: Get PR Info
         with:
