@@ -9,6 +9,7 @@ jobs:
     environment: staging
     outputs:
       commit_message: ${{ steps.get_message.outputs.commit_message }}
+      pull_requests: ${{ steps.pr_info.outputs.pull_requests }}
     steps:
       - uses: actions/checkout@v4
       - name: Get commit message
@@ -18,6 +19,16 @@ jobs:
           echo "commit_message<<EOF" >> $GITHUB_OUTPUT
           echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
+      - uses: denniscual/pull-request-info@v1.1.0
+        id: pr_info
+        name: Get PR Info
+        with:
+          commit_sha: ${{ github.sha }}
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.repository.name }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-node@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -28,19 +39,6 @@ jobs:
         run: pnpm install
       - name: Build App
         run: pnpm build
-
-      - uses: denniscual/pull-request-info@v1.1.0
-        id: pr_info
-        name: Get PR Info
-        with:
-          owner: denniscual
-          commit_sha: 1f98673e57a4f3785ac7121af641e96357dd183d
-          repo: test-github-action
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log PR Info
-        run: |
-          echo "Pull Requests: ${{ steps.pr_info.outputs.pull_requests }}"
 
   deploy_prod:
     needs: deploy_staging
@@ -58,7 +56,9 @@ jobs:
           version: 10
       - name: Install dependencies
         run: pnpm install
+
       - name: Build App
         env:
           REACT_APP__COMMIT_MESSAGE: ${{ needs.deploy_staging.outputs.commit_message }}
+          REACT_APP__PULL_REQUESTS: ${{ needs.deploy_staging.outputs.pull_requests }}
         run: pnpm build
