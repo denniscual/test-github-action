@@ -38,6 +38,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build App
+        env:
+          REACT_APP__COMMIT_MESSAGE: ${{ steps.get_message.outputs.commit_message }}
+          REACT_APP__PULL_REQUESTS: ${{ steps.pr_info.outputs.pull_requests }}
         run: pnpm build
 
   deploy_prod:

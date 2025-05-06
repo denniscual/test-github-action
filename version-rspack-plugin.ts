@@ -28,6 +28,8 @@ export class VersionRspackPlugin {
         ? parseInt(process.env.REACT_APP_BUILD_DATE_STALE_THRESHOLD, 10)
         : 1000 * 60 * 60 * 24 * 14; // Default to 2 weeks.
 
+      console.log({ commitMessage, pullRequests });
+
       const versionInfo = {
         buildDate,
         buildNumber,
@@ -58,7 +60,6 @@ function isDeploymentForceable({
   pullRequests: any[];
   commitMessage: string;
 }) {
-  console.log({ commitMessage, pullRequests });
   const forceUpdateChars = "force-update!";
   return new RegExp(forceUpdateChars, "i").test(commitMessage);
 }
