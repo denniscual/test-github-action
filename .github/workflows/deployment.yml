@@ -28,6 +28,15 @@ jobs:
         run: pnpm install
       - name: Build App
         run: pnpm build
+
+      - uses: denniscual/pull-request-info
+        name: Get PR Info
+        with:
+          owner: denniscual
+          commit_sha: 1f98673e57a4f3785ac7121af641e96357dd183d
+          repo: test-github-action
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
   deploy_prod:
     needs: deploy_staging
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
