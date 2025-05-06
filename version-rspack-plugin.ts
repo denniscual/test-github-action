@@ -18,8 +18,8 @@ export class VersionRspackPlugin {
   apply(compiler: Compiler) {
     const buildDate = new Date().toISOString();
     const buildNumber = process.env.REACT_APP__BUILD_NUMBER;
-    const commitHash = process.env.REACT_APP__COMMIT_HASH;
     const commitMessage = process.env.REACT_APP__COMMIT_MESSAGE;
+    const pullRequests = process.env.REACT_APP__PULL_REQUESTS;
 
     // Write version.json file
     compiler.hooks.emit.tapAsync(PLUGIN_NAME, (compilation, callback) => {
@@ -36,7 +36,10 @@ export class VersionRspackPlugin {
          * the last update check that must have passed to trigger a new update check.
          */
         buildDateStaleThreshold,
-        force: isGitCommitAForceUpdate(commitMessage),
+        force: isDeploymentForceable({
+          pullRequests: JSON.parse(pullRequests ?? "[]"),
+          commitMessage,
+        }),
       };
 
       console.log("Logging version...");
@@ -48,7 +51,14 @@ export class VersionRspackPlugin {
   }
 }
 
-function isGitCommitAForceUpdate(commitMsg: string) {
+function isDeploymentForceable({
+  pullRequests,
+  commitMessage,
+}: {
+  pullRequests: any[];
+  commitMessage: string;
+}) {
+  console.log({ commitMessage, pullRequests });
   const forceUpdateChars = "force-update!";
-  return new RegExp(forceUpdateChars, "i").test(commitMsg);
+  return new RegExp(forceUpdateChars, "i").test(commitMessage);
 }
