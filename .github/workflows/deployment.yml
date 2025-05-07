@@ -39,8 +39,8 @@ jobs:
         run: pnpm install
       - name: Build App
         env:
-          REACT_APP__COMMIT_MESSAGE: ${{ steps.get_message.outputs.commit_message }}
-          REACT_APP__PULL_REQUESTS: ${{ steps.pr_info.outputs.pull_requests }}
+          COMMIT_MESSAGE: ${{ steps.get_message.outputs.commit_message }}
+          PULL_REQUESTS: ${{ steps.pr_info.outputs.pull_requests }}
         run: pnpm build
 
   deploy_prod:
@@ -62,6 +62,6 @@ jobs:
 
       - name: Build App
         env:
-          REACT_APP__COMMIT_MESSAGE: ${{ needs.deploy_staging.outputs.commit_message }}
-          REACT_APP__PULL_REQUESTS: ${{ needs.deploy_staging.outputs.pull_requests }}
+          COMMIT_MESSAGE: ${{ needs.deploy_staging.outputs.commit_message }}
+          PULL_REQUESTS: ${{ needs.deploy_staging.outputs.pull_requests }}
         run: pnpm build
