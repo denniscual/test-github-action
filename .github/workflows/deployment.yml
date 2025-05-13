@@ -67,4 +67,4 @@ jobs:
         run: pnpm build
 
       - name: Log Repository Env Var
-        run: echo "Repository environment variable $FORCE_UPDATE_BUILD_COUNT"
+        run: echo "Repository environment variable ${{ vars.FORCE_UPDATE_BUILD_COUNT }}"
