@@ -65,3 +65,6 @@ jobs:
           COMMIT_MESSAGE: ${{ needs.deploy_staging.outputs.commit_message }}
           PULL_REQUESTS: ${{ needs.deploy_staging.outputs.pull_requests }}
         run: pnpm build
+
+      - name: Log Repository Env Var
+        run: echo "Repository environment variable: ${{ env.FORCE_UPDATE_BUILD_COUNT }}"
