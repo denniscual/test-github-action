@@ -21,7 +21,7 @@ jobs:
           echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - uses: denniscual/pull-request-info@v1.1.0
+      - uses: denniscual/pull-request-info@v1.2.0
         id: pr_info
         name: Get PR Info
         with:
