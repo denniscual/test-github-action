@@ -52,7 +52,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.PAT }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/variables/FORCE_UPDATE_BUILD_COUNT \
-            -d '{"name":"FORCE_UPDATE_BUILD_COUNT","value":"50"}'
+            -d '{"name":"FORCE_UPDATE_BUILD_COUNT","value":"100"}'
 
       - name: Fetch Build Count Variable
         id: fetch_build_count
