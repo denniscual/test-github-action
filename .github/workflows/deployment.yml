@@ -7,6 +7,9 @@ jobs:
   deploy_staging:
     runs-on: ubuntu-latest
     environment: staging
+    permissions:
+      actions: write
+      contents: read
     outputs:
       commit_message: ${{ steps.get_message.outputs.commit_message }}
       pull_requests: ${{ steps.pr_info.outputs.pull_requests }}
