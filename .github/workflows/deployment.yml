@@ -46,7 +46,7 @@ jobs:
         run: pnpm build
 
       - name: Update Build Count Variable
-        if: ${{ toNumber(steps.pr_info.outputs.size) > 0 }}
+        if: ${{ steps.pr_info.outputs.size > 10 }}
         run: |
           curl -L \
             -X PATCH \
