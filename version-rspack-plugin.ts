@@ -18,11 +18,7 @@ export class VersionRspackPlugin {
   apply(compiler: Compiler) {
     const buildDate = new Date().toISOString();
     const buildNumber = process.env.REACT_APP__BUILD_NUMBER;
-    const commitMessage = process.env.COMMIT_MESSAGE;
-    const pullRequests = process.env.PULL_REQUESTS;
-    const pullRequestsSize = process.env.PULL_REQUESTS_SIZE;
-
-    console.log({ pullRequestsSize });
+    const forceUpdateBuildCount = process.env.FORCE_UPDATE_BUILD_COUNT;
 
     // Write version.json file
     compiler.hooks.emit.tapAsync(PLUGIN_NAME, (compilation, callback) => {
@@ -30,8 +26,6 @@ export class VersionRspackPlugin {
         .REACT_APP_BUILD_DATE_STALE_THRESHOLD
         ? parseInt(process.env.REACT_APP_BUILD_DATE_STALE_THRESHOLD, 10)
         : 1000 * 60 * 60 * 24 * 14; // Default to 2 weeks.
-
-      console.log({ commitMessage, pullRequests });
 
       const versionInfo = {
         buildDate,
@@ -41,10 +35,7 @@ export class VersionRspackPlugin {
          * the last update check that must have passed to trigger a new update check.
          */
         buildDateStaleThreshold,
-        force: isDeploymentForceable({
-          pullRequests: JSON.parse(pullRequests ?? "[]"),
-          commitMessage,
-        }),
+        forceUpdateBuildCount,
       };
 
       console.log("Logging version...");
@@ -54,15 +45,4 @@ export class VersionRspackPlugin {
       callback();
     });
   }
-}
-
-function isDeploymentForceable({
-  pullRequests,
-  commitMessage,
-}: {
-  pullRequests: any[];
-  commitMessage: string;
-}) {
-  const forceUpdateChars = "force-update!";
-  return new RegExp(forceUpdateChars, "i").test(commitMessage);
 }
