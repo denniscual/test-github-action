@@ -31,20 +31,6 @@ jobs:
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v4
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          version: 10
-          run_install: false
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build App
-        env:
-          COMMIT_MESSAGE: ${{ steps.get_message.outputs.commit_message }}
-          PULL_REQUESTS: ${{ steps.pr_info.outputs.pull_requests }}
-        run: pnpm build
-
       - name: Update Build Count Variable
         if: ${{ steps.pr_info.outputs.size > 10 }}
         run: |
@@ -65,6 +51,22 @@ jobs:
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/${{ github.repository }}/actions/variables/FORCE_UPDATE_BUILD_COUNT)
           echo "Response from API: $RESPONSE"
+
+      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build App
+        env:
+          COMMIT_MESSAGE: ${{ steps.get_message.outputs.commit_message }}
+          PULL_REQUESTS: ${{ steps.pr_info.outputs.pull_requests }}
+          PULL_REQUESTS_SIZE: ${{ steps.pr_info.outputs.size }}
+        run: pnpm build
 
   deploy_prod:
     needs: deploy_staging
@@ -87,6 +89,7 @@ jobs:
         env:
           COMMIT_MESSAGE: ${{ needs.deploy_staging.outputs.commit_message }}
           PULL_REQUESTS: ${{ needs.deploy_staging.outputs.pull_requests }}
+          PULL_REQUESTS_SIZE: ${{ needs.deploy_staging.outputs.size }}
         run: pnpm build
 
       - name: Log Repository Env Var
