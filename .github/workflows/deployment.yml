@@ -58,3 +58,6 @@ jobs:
         env:
           FORCE_UPDATE_BUILD_COUNT: ${{ needs.deploy_staging.outputs.force_update_build_count }}
         run: pnpm build
+
+      - name: Log Github Sha
+        run: echo ${{ github.sha }}
