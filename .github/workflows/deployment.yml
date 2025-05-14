@@ -30,6 +30,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          label: "force-update"
 
       - name: Update Build Count Variable
         if: ${{ steps.pr_info.outputs.size > 10 }}
