@@ -17,7 +17,7 @@ jobs:
         uses: Carepatron/force-update-build-action@v1.0.0
         with:
           commit_sha: ${{ github.sha }}
-          personal_access_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          personal_access_token: ${{ secrets.PAT }}
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           label: "force-update"
