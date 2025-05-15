@@ -3,3 +3,5 @@ export default function App() {
 }
 
 console.log("fasdfasd");
+
+console.log("hello world");
