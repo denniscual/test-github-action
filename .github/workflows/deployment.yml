@@ -12,17 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Force Update Build
-        id: force-update
-        uses: Carepatron/force-update-build-action@v1.1.1
-        with:
-          commit_sha: ${{ github.sha }}
-          personal_access_token: ${{ secrets.PAT }}
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
-          label: "force-update"
-          force_update_build_count_name: "FORCE_UPDATE_BUILD_COUNT"
-
       - uses: actions/setup-node@v4
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -45,6 +34,16 @@ jobs:
       name: production
     steps:
       - uses: actions/checkout@v4
+
+      - name: Increment Force Update Build Count
+        id: force-update
+        uses: carepatron/force-update-build-action@v1.2.0
+        with:
+          commit_sha: ${{ github.sha }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
+          label: 'force-update'
 
       - uses: actions/setup-node@v4
       - uses: pnpm/action-setup@v4
