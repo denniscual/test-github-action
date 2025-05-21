@@ -7,10 +7,18 @@ jobs:
   deploy_staging:
     runs-on: ubuntu-latest
     environment: staging
-    outputs:
-      force_update_build_count: ${{ steps.force-update.outputs.force_update_build_count }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Increment Force Update Build Count
+        id: force-update
+        uses: carepatron/force-update-build-action@v1.2.0
+        with:
+          commit_sha: ${{ github.sha }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
+          label: 'force-update'
 
       - uses: actions/setup-node@v4
       - uses: pnpm/action-setup@v4
@@ -55,7 +63,7 @@ jobs:
 
       - name: Build App
         env:
-          FORCE_UPDATE_BUILD_COUNT: ${{ needs.deploy_staging.outputs.force_update_build_count }}
+          FORCE_UPDATE_BUILD_COUNT: ${{ steps.force-update.outputs.force_update_build_count }}
         run: pnpm build
 
       - name: Log Github Sha
